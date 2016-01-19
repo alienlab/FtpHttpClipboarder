@@ -55,7 +55,7 @@
       else
       {
         tmpFilePath = GetClipboardFilePath();
-        resourceName += Path.GetFileNameWithoutExtension(tmpFilePath) + "." + guid + Path.GetExtension(tmpFilePath);
+        resourceName += Path.GetFileName(tmpFilePath) + "." + guid + GetExtension(tmpFilePath);
       }
 
       UploadFile(resourceName, tmpFilePath);
@@ -63,6 +63,59 @@
       // put a link of the file to the clipboard
       var url = GetUrl("http", resourceName);
       Clipboard.SetText(url);
+    }
+
+    private string GetExtension(string tmpFilePath)
+    {
+      var ext = Path.GetExtension(tmpFilePath).ToLowerInvariant();
+      switch (ext)
+      {
+        case ".bat":
+        case ".xslt":
+        case ".cshtml":
+        case ".sln":
+        case ".csproj":
+        case ".vbproj":
+        case ".vsproj":
+        case ".sql":
+        case ".ascx":
+        case ".aspx":
+        case ".asmx":
+        case ".ashx":
+        case ".asax":
+        case ".cs":
+        case ".vb":
+        case ".config":
+        case ".xml":
+        case ".manifest":
+        case ".publishsettings":
+        case ".ini":
+          return ".txt";
+
+        case ".pdf":
+        case ".txt":
+        case ".js":
+        case ".zip":
+        case ".dll":
+        case ".7z":
+        case ".exe":
+        case ".png":
+        case ".gif":
+        case ".jpg":
+        case ".xls":
+        case ".xlsx":
+        case ".doc":
+        case ".docx":
+          return ext;
+
+        case ".nupkg":
+        case ".mdf":
+        case ".ldf":
+        case ".saz":
+        case ".resx":
+        default:
+          return ".bin";
+      }
     }
 
     private static string GetClipboardFilePath()
@@ -114,18 +167,12 @@
 
     private static string GetUrl(string protocol, string name)
     {
-      return $"{protocol}://dl.sitecore.net/updater/share/{name}".Replace(" ", "%20");
+      return string.Format("{0}://dl.sitecore.net/updater/share/{1}".Replace(" ", "%20"), protocol, name);
     }
 
     private static string GetNewShortGuid()
     {
       return Guid.NewGuid().ToString().Replace("-", string.Empty).Trim(new[] { '{', '}' }).ToUpper();
-    }
-
-    private static string GetShareFolderPath(string publicFolderPath)
-    {
-      var shareFolderPath = Path.Combine(publicFolderPath, "Share");
-      return shareFolderPath;
     }
 
     private void HandleError(Exception ex, string type = null)
